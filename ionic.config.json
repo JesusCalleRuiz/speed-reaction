@@ -1,0 +1,8 @@
+{
+  "name": "SpeedReaction",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite",
+  "id": "798634e9"
+}
