@@ -3,6 +3,7 @@
     <ion-header>
       <ion-toolbar>
         <ion-title>Reacción</ion-title>
+        <MenuComponent/>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
@@ -18,6 +19,8 @@
 import { ref } from 'vue';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton } from '@ionic/vue';
 import axios from 'axios';
+import MenuComponent from "@/components/MenuComponent.vue";
+
 
 const message = ref("Presiona 'Iniciar' para comenzar");
 const running = ref(false);
@@ -51,6 +54,8 @@ const recordReactionTime = async () => {
     message.value = `${reactionTime.toFixed(3)}s`;
     running.value = false;
     try {
+
+      axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
       await axios.post('http://localhost:8000/api/times', { time: reactionTime });
       console.log("Tiempo registrado correctamente.");
     } catch (error) {
@@ -58,6 +63,7 @@ const recordReactionTime = async () => {
     }
   }
 };
+
 </script>
 
 <style scoped>
