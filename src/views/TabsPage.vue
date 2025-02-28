@@ -52,6 +52,7 @@ onMounted(() => {
 
 //restaurar el botón de atrás
 onUnmounted(() => {
-  useBackButton(9999, null);
+  useBackButton(9999, () =>{
+  });
 });
 </script>

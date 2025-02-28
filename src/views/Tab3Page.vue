@@ -8,8 +8,8 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div v-if="loading" class="loading">Cargando...</div>
-      <ion-list v-else-if="times.length > 0">
-        <ion-item v-for="time in times" :key="time.id">
+      <ion-list v-else-if="time.length > 0">
+        <ion-item v-for="time in time" :key="time.id">
           <ion-label class="time-label">
             <div class="time-value">{{ time.times }}s</div>
             <div class="time-date">
@@ -32,7 +32,7 @@ import MenuComponent from "@/components/MenuComponent.vue";
 import eventBus from "@/eventBus";
 
 
-const times = ref<{ id: number; time: number; created_at: string }[]>([]);
+const time = ref<{ id: number; times: number; name: string ;created_at: string }[]>([]);
 const loading = ref(true);
 
 // Función para obtener los tiempos del usuario
@@ -40,7 +40,7 @@ const getTimes = async () => {
   try {
     axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
     const response = await axios.get('https://speedreaction.dev-alicenter.es/api/times');
-    times.value = response.data.data; // Suponiendo que el backend devuelve un array de tiempos
+    time.value = response.data.data; // Suponiendo que el backend devuelve un array de tiempos
     console.log(response.data.data);
   } catch (e) {
     console.error("Error al recibir los tiempos:", e);
