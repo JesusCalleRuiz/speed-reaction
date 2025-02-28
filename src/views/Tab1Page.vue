@@ -20,6 +20,7 @@ import { ref } from 'vue';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton } from '@ionic/vue';
 import axios from 'axios';
 import MenuComponent from "@/components/MenuComponent.vue";
+import eventBus from "@/eventBus";
 
 
 const message = ref("Presiona 'Iniciar' para comenzar");
@@ -56,8 +57,9 @@ const recordReactionTime = async () => {
     try {
 
       axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
-      await axios.post('http://localhost:8000/api/times', { time: reactionTime });
+      await axios.post('https://speedreaction.dev-alicenter.es/api/times', { time: reactionTime });
       console.log("Tiempo registrado correctamente.");
+      eventBus.emit("refreshTimes");
     } catch (error) {
       console.error("Error al enviar el tiempo:", error);
     }

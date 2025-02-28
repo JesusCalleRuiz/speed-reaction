@@ -24,10 +24,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel } from '@ionic/vue';
 import axios from 'axios';
 import MenuComponent from "@/components/MenuComponent.vue";
+import eventBus from "@/eventBus";
+
 
 const times = ref<{ id: number; time: number; created_at: string }[]>([]);
 const loading = ref(true);
@@ -36,7 +38,7 @@ const loading = ref(true);
 const getTimesByUser = async () => {
   try {
     axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
-    const response = await axios.get('http://localhost:8000/api/user/times');
+    const response = await axios.get('https://speedreaction.dev-alicenter.es/api/user/times');
     times.value = response.data.data; // Suponiendo que el backend devuelve un array de tiempos
     console.log(response.data.data);
   } catch (e) {
@@ -54,6 +56,11 @@ const formatDate = (dateString: string) => {
 // Cargar datos al montar el componente
 onMounted(() => {
   getTimesByUser();
+  eventBus.on("refreshTimes", getTimesByUser);
+});
+
+onUnmounted(() => {
+  eventBus.off("refreshTimes", getTimesByUser);
 });
 </script>
 
