@@ -43,37 +43,33 @@ const startCountdown = () => {
 
   Motion.removeAllListeners();
 
-  const readyDelay = 2000;
-  const additionalDelay = Math.random() * 2000 + 1000;
-  const totalDelay = readyDelay + additionalDelay;
+  //tiempo aleatoria de 1 a 3
+  const delay = Math.random() * 2000 + 1000;
+  const scheduledShotTime = performance.now() + delay;
 
-  const scheduledShotTime = performance.now() + totalDelay;
+  Motion.addListener('accel', event => {
+    const currentTime = performance.now();
+    const acceleration = Math.sqrt(
+        event.acceleration.x ** 2 +
+        event.acceleration.y ** 2 +
+        event.acceleration.z ** 2
+    );
+    data.value.push({ time: currentTime, acceleration });
+    const baseTime = shotTime !== null ? shotTime : scheduledShotTime;
+    const reactionTime = (currentTime - baseTime) / 1000;
 
-  setTimeout(() => {
-    message.value = "¡Listos!";
+    if (acceleration > threshold) {
+      saveReactionTime(reactionTime);
+      Motion.removeAllListeners();
+    }
+  });
 
-    Motion.addListener('accel', event => {
-      const currentTime = performance.now();
-      const acceleration = Math.sqrt(
-          event.acceleration.x ** 2 +
-          event.acceleration.y ** 2 +
-          event.acceleration.z ** 2
-      );
-      data.value.push({ time: currentTime, acceleration });
-      const baseTime = shotTime !== null ? shotTime : scheduledShotTime;
-      const reactionTime = (currentTime - baseTime) / 1000;
-      if (acceleration > threshold) {
-        saveReactionTime(reactionTime);
-        Motion.removeAllListeners();
-      }
-    });
-  }, readyDelay);
-
+ //disparo
   setTimeout(() => {
     sounds.go.play();
     message.value = "¡Ya!";
     shotTime = performance.now();
-  }, totalDelay);
+  }, delay);
 };
 
 const saveReactionTime = async (reactionTime: number) => {
