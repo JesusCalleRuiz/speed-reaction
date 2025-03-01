@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, PropType } from 'vue';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -45,8 +45,8 @@ onMounted(() => {
 
 watch(() => props.data, (newData) => {
   if (newData && chartInstance) {
-    chartInstance.data.labels = newData.map((point) => (point.time / 1000).toFixed(2));
-    chartInstance.data.datasets[0].data = newData.map(point => point.acceleration);
+    chartInstance.data.labels = newData.map((point: DataPoint) => (point.time / 1000).toFixed(2));
+    chartInstance.data.datasets[0].data = newData.map((point: DataPoint) => point.acceleration);
     chartInstance.update();
   }
 }, { deep: true });
