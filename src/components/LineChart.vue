@@ -29,10 +29,10 @@ onMounted(() => {
       data: {
         labels: [],
         datasets: [{
-          label: 'Aceleración',
           borderColor: '#8884d8',
           borderWidth: 2,
-          data: []
+          data: [],
+          pointRadius: 0
         }]
       },
       options: {

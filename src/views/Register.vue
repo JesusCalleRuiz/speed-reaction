@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-content :fullscreen="true" class="ion-padding">
+    <ion-content :fullscreen="true">
       <ion-card>
         <ion-card-header>
           <ion-card-title>Registro</ion-card-title>
