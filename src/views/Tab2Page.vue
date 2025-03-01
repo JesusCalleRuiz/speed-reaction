@@ -34,12 +34,11 @@ import eventBus from "@/eventBus";
 const times = ref<{ id: number; time: number; created_at: string }[]>([]);
 const loading = ref(true);
 
-// Función para obtener los tiempos del usuario
 const getTimesByUser = async () => {
   try {
     axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
     const response = await axios.get('https://speedreaction.dev-alicenter.es/api/user/times');
-    times.value = response.data.data; // Suponiendo que el backend devuelve un array de tiempos
+    times.value = response.data.data;
     console.log(response.data.data);
   } catch (e) {
     console.error("Error al recibir los tiempos:", e);
@@ -48,12 +47,10 @@ const getTimesByUser = async () => {
   }
 };
 
-// Formatear la fecha
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleString(); // Formato legible
+  return new Date(dateString).toLocaleString();
 };
 
-// Cargar datos al montar el componente
 onMounted(() => {
   getTimesByUser();
   eventBus.on("refreshTimes", getTimesByUser);

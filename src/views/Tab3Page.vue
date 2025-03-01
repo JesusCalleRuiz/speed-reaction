@@ -35,7 +35,6 @@ import eventBus from "@/eventBus";
 const time = ref<{ id: number; times: number; name: string ;created_at: string }[]>([]);
 const loading = ref(true);
 
-// Función para obtener los tiempos del usuario
 const getTimes = async () => {
   try {
     axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
@@ -49,12 +48,10 @@ const getTimes = async () => {
   }
 };
 
-// Formatear la fecha
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleString(); // Formato legible
+  return new Date(dateString).toLocaleString();
 };
 
-// Cargar datos al montar el componente
 onMounted(() => {
   getTimes();
   eventBus.on("refreshTimes", getTimes);

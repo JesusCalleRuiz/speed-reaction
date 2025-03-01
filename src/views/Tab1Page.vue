@@ -10,7 +10,7 @@
       <div class="center-content">
         <h2>{{ message }}</h2>
         <ion-button @click="startCountdown" v-if="!running">Iniciar</ion-button>
-        <LineChart :data="data"  />
+        <LineChart :data="data" />
       </div>
     </ion-content>
   </ion-page>
@@ -39,36 +39,41 @@ const startCountdown = () => {
   running.value = true;
   message.value = "A sus puestos...";
   data.value = [];
+  shotTime = null;
+
+  Motion.removeAllListeners();
+
+  const readyDelay = 2000;
+  const additionalDelay = Math.random() * 2000 + 1000;
+  const totalDelay = readyDelay + additionalDelay;
+
+  const scheduledShotTime = performance.now() + totalDelay;
 
   setTimeout(() => {
     message.value = "¡Listos!";
 
     Motion.addListener('accel', event => {
-      const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
-      data.value.push({ time: performance.now(), acceleration });
-      const reactionTime = (performance.now() - (shotTime || 0)) / 1000;
+      const currentTime = performance.now();
+      const acceleration = Math.sqrt(
+          event.acceleration.x ** 2 +
+          event.acceleration.y ** 2 +
+          event.acceleration.z ** 2
+      );
+      data.value.push({ time: currentTime, acceleration });
+      const baseTime = shotTime !== null ? shotTime : scheduledShotTime;
+      const reactionTime = (currentTime - baseTime) / 1000;
       if (acceleration > threshold) {
         saveReactionTime(reactionTime);
         Motion.removeAllListeners();
       }
     });
+  }, readyDelay);
 
-    setTimeout(() => {
-      sounds.go.play();
-      message.value = "¡Ya!";
-      shotTime = performance.now();
-
-      Motion.addListener('accel', event => {
-        const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
-        const reactionTime = (performance.now() - (shotTime || 0)) / 1000;
-
-        if (acceleration > threshold) {
-          saveReactionTime(reactionTime);
-          Motion.removeAllListeners();
-        }
-      });
-    }, Math.random() * 2000 + 1000);
-  }, 2000);
+  setTimeout(() => {
+    sounds.go.play();
+    message.value = "¡Ya!";
+    shotTime = performance.now();
+  }, totalDelay);
 };
 
 const saveReactionTime = async (reactionTime: number) => {
