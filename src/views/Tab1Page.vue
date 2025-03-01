@@ -14,7 +14,7 @@
           <p>Sensibilidad: {{ sensitivity }}</p>
           <input type="range" v-model="sensitivity" min="0.01" max="1" step="0.01">
         </div>
-        <LineChart :data="chartData" />
+        <LineChart :data="chartData" :shotTime="shotTime"/>
       </div>
     </ion-content>
   </ion-page>
@@ -33,6 +33,9 @@ const message = ref("Presiona 'Iniciar' para comenzar");
 const running = ref(false);
 const sensitivity = ref(0.1);
 const chartData = ref([]);
+const shotTime = ref(null);
+const showChart = ref(false);
+
 let startTime: number | null = null;
 let movementDetected = false;
 let movementBeforeStart = false;
@@ -42,37 +45,19 @@ const sounds = {
   go: new Audio('/assets/go.mp3'),
 };
 
-onMounted(() => {
-  requestMotionPermission();
-});
-
 onUnmounted(() => {
   stopMotionDetection();
 });
-
-const requestMotionPermission = async () => {
-  if (typeof DeviceMotionEvent.requestPermission === 'function') {
-    try {
-      const permission = await DeviceMotionEvent.requestPermission();
-      if (permission === 'granted') {
-        console.log('Permiso de movimiento concedido');
-      } else {
-        console.warn('Permiso de movimiento denegado');
-      }
-    } catch (error) {
-      console.error('Error al solicitar permiso de movimiento:', error);
-    }
-  } else {
-    console.log('El navegador no requiere permisos o no es compatible');
-  }
-};
 
 const startCountdown = () => {
   running.value = true;
   message.value = "A sus puestos...";
   movementDetected = false;
   movementBeforeStart = false;
+  
   chartData.value = [];
+  shotTime.value = null;
+  showChart.value = false;
 
   setTimeout(() => {
     message.value = "¡Listos!";
@@ -85,6 +70,8 @@ const startCountdown = () => {
 
       if (movementBeforeStart) {
         recordReactionTime(true);
+      } else {
+        showChart.value = true;
       }
     }, Math.random() * 2000 + 1000);
   }, 2000);
@@ -124,11 +111,7 @@ const recordReactionTime = async (falseStart: boolean) => {
     message.value = `${reactionTime.toFixed(3)}s`;
     running.value = false;
 
-    if (chartData.value.length > 0) {
-      const shotTime = chartData.value[chartData.value.length - 1].time;
-      chartData.value.push({ time: shotTime, acceleration: null });
-    }
-
+    shotTime.value = performance.now() - startTime;
     try {
       axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
       await axios.post('https://speedreaction.dev-alicenter.es/api/times', { time: reactionTime });

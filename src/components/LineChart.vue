@@ -13,11 +13,12 @@ Chart.register(...registerables, annotationPlugin);
 
 interface DataPoint {
   time: number;
-  acceleration: number | null;
+  acceleration: number;
 }
 
 const props = defineProps({
-  data: Array as PropType<DataPoint[]>
+  data: Array as PropType<DataPoint[]>,
+  shotTime: Number
 });
 
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
@@ -42,11 +43,11 @@ onMounted(() => {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            display: false
-          },
           annotation: {
             annotations: {}
+          },
+          legend: {
+            display: false
           }
         }
       }
@@ -56,25 +57,22 @@ onMounted(() => {
 
 watch(() => props.data, (newData) => {
   if (newData && chartInstance) {
-    chartInstance.data.labels = newData.map((point) => (point.time / 1000).toFixed(2));
-    chartInstance.data.datasets[0].data = newData.map((point) => point.acceleration);
+    chartInstance.data.labels = newData.map(point => (point.time / 1000).toFixed(2));
+    chartInstance.data.datasets[0].data = newData.map(point => point.acceleration);
 
-    // Buscar el punto de disparo para agregar una línea vertical
-    const shotPoint = newData.find(point => point.acceleration === null);
-    if (shotPoint) {
-      chartInstance.options.plugins.annotation = {
-        annotations: {
-          shotLine: {
-            type: 'line',
-            xMin: (shotPoint.time / 1000).toFixed(2),
-            xMax: (shotPoint.time / 1000).toFixed(2),
-            borderColor: 'red',
-            borderWidth: 2,
-            label: {
-              content: 'Disparo',
-              enabled: true,
-              position: 'top'
-            }
+    // Agregar la línea del disparo
+    if (props.shotTime !== null) {
+      chartInstance.options.plugins.annotation.annotations = {
+        shotLine: {
+          type: 'line',
+          xMin: (props.shotTime / 1000).toFixed(2),
+          xMax: (props.shotTime / 1000).toFixed(2),
+          borderColor: 'red',
+          borderWidth: 2,
+          label: {
+            content: 'Disparo',
+            enabled: true,
+            position: 'top'
           }
         }
       };
