@@ -7,12 +7,13 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, PropType } from 'vue';
 import { Chart, registerables } from 'chart.js';
+import annotationPlugin from 'chartjs-plugin-annotation';
 
-Chart.register(...registerables);
+Chart.register(...registerables, annotationPlugin);
 
 interface DataPoint {
   time: number;
-  acceleration: number;
+  acceleration: number | null;
 }
 
 const props = defineProps({
@@ -33,7 +34,8 @@ onMounted(() => {
           borderColor: '#8884d8',
           borderWidth: 2,
           data: [],
-          pointRadius: 0
+          pointRadius: 2,
+          fill: false
         }]
       },
       options: {
@@ -42,6 +44,9 @@ onMounted(() => {
         plugins: {
           legend: {
             display: false
+          },
+          annotation: {
+            annotations: {}
           }
         }
       }
@@ -51,8 +56,30 @@ onMounted(() => {
 
 watch(() => props.data, (newData) => {
   if (newData && chartInstance) {
-    chartInstance.data.labels = newData.map((point: DataPoint) => (point.time / 1000).toFixed(2));
-    chartInstance.data.datasets[0].data = newData.map((point: DataPoint) => point.acceleration);
+    chartInstance.data.labels = newData.map((point) => (point.time / 1000).toFixed(2));
+    chartInstance.data.datasets[0].data = newData.map((point) => point.acceleration);
+
+    // Buscar el punto de disparo para agregar una línea vertical
+    const shotPoint = newData.find(point => point.acceleration === null);
+    if (shotPoint) {
+      chartInstance.options.plugins.annotation = {
+        annotations: {
+          shotLine: {
+            type: 'line',
+            xMin: (shotPoint.time / 1000).toFixed(2),
+            xMax: (shotPoint.time / 1000).toFixed(2),
+            borderColor: 'red',
+            borderWidth: 2,
+            label: {
+              content: 'Disparo',
+              enabled: true,
+              position: 'top'
+            }
+          }
+        }
+      };
+    }
+
     chartInstance.update();
   }
 }, { deep: true });
