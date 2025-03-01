@@ -32,10 +32,9 @@ import { Motion } from '@capacitor/motion';
 const message = ref("Presiona 'Iniciar' para comenzar");
 const running = ref(false);
 const sensitivity = ref(0.1);
-const chartData = ref([]);
-const shotTime = ref(null);
+const chartData = ref<{ time: number, acceleration: number }[]>([]);
+const shotTime = ref<number | null>(null);
 const showChart = ref(false);
-
 let startTime: number | null = null;
 let movementDetected = false;
 let movementBeforeStart = false;
@@ -111,7 +110,7 @@ const recordReactionTime = async (falseStart: boolean) => {
     message.value = `${reactionTime.toFixed(3)}s`;
     running.value = false;
 
-    shotTime.value = performance.now() - startTime;
+    shotTime.value = performance.now() - startTime!;
     try {
       axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
       await axios.post('https://speedreaction.dev-alicenter.es/api/times', { time: reactionTime });
@@ -123,24 +122,3 @@ const recordReactionTime = async (falseStart: boolean) => {
   }
 };
 </script>
-
-<style scoped>
-.center-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  text-align: center;
-}
-
-h2 {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-}
-
-input[type="range"] {
-  width: 80%;
-  margin-top: 10px;
-}
-</style>

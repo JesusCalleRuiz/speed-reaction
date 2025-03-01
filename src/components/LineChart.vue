@@ -18,7 +18,7 @@ interface DataPoint {
 
 const props = defineProps({
   data: Array as PropType<DataPoint[]>,
-  shotTime: Number
+  shotTime: Number as PropType<number | null> 
 });
 
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
@@ -43,11 +43,11 @@ onMounted(() => {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          annotation: {
-            annotations: {}
-          },
           legend: {
             display: false
+          },
+          annotation: {
+            annotations: {}
           }
         }
       }
@@ -60,22 +60,24 @@ watch(() => props.data, (newData) => {
     chartInstance.data.labels = newData.map(point => (point.time / 1000).toFixed(2));
     chartInstance.data.datasets[0].data = newData.map(point => point.acceleration);
 
-    // Agregar la línea del disparo
-    if (props.shotTime !== null) {
-      chartInstance.options.plugins.annotation.annotations = {
-        shotLine: {
-          type: 'line',
-          xMin: (props.shotTime / 1000).toFixed(2),
-          xMax: (props.shotTime / 1000).toFixed(2),
-          borderColor: 'red',
-          borderWidth: 2,
-          label: {
-            content: 'Disparo',
-            enabled: true,
-            position: 'top'
+    if (chartInstance && chartInstance.options.plugins) {
+      chartInstance.options.plugins.annotation = chartInstance.options.plugins.annotation || { annotations: {} };
+
+      if (props.shotTime !== undefined && props.shotTime !== null) {
+        chartInstance.options.plugins.annotation.annotations = {
+          shotLine: {
+            type: 'line',
+            xMin: (props.shotTime / 1000).toFixed(2),
+            xMax: (props.shotTime / 1000).toFixed(2),
+            borderColor: 'red',
+            borderWidth: 2,
+            label: {
+              content: 'Disparo',
+              position: 'top'
+            }
           }
-        }
-      };
+        };
+      }
     }
 
     chartInstance.update();
