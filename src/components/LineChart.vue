@@ -46,9 +46,7 @@ onMounted(() => {
           legend: {
             display: false
           },
-          annotation: {
-            annotations: {}
-          }
+          annotation: {}
         }
       }
     });
@@ -60,24 +58,26 @@ watch(() => props.data, (newData) => {
     chartInstance.data.labels = newData.map(point => (point.time / 1000).toFixed(2));
     chartInstance.data.datasets[0].data = newData.map(point => point.acceleration);
 
-    if (props.shotTime !== undefined && props.shotTime !== null) {
-      const shotTimeInSeconds = props.shotTime / 1000;
+    if (chartInstance.options.plugins && 'annotation' in chartInstance.options.plugins) {
+      if (props.shotTime !== undefined && props.shotTime !== null) {
+        const shotTimeInSeconds = props.shotTime / 1000;
 
-      chartInstance.options.plugins.annotation = {
-        annotations: {
-          shotLine: {
-            type: 'line',
-            xMin: shotTimeInSeconds,
-            xMax: shotTimeInSeconds,
-            borderColor: 'red',
-            borderWidth: 2,
-            label: {
-              content: 'Disparo',
-              position: 'start'
+        chartInstance.options.plugins.annotation = {
+          annotations: {
+            shotLine: {
+              type: 'line',
+              xMin: shotTimeInSeconds,
+              xMax: shotTimeInSeconds,
+              borderColor: 'red',
+              borderWidth: 2,
+              label: {
+                content: 'Disparo',
+                position: 'start'
+              }
             }
           }
-        }
-      };
+        };
+      }
     }
 
     chartInstance.update();
