@@ -6,11 +6,11 @@
         <MenuComponent />
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" class="ion-padding">
       <div class="center-content">
         <h2>{{ message }}</h2>
         <ion-button @click="startCountdown" v-if="!running">Iniciar</ion-button>
-        <LineChart :data="data" />
+        <LineChart :data="data"  />
       </div>
     </ion-content>
   </ion-page>
@@ -40,38 +40,35 @@ const startCountdown = () => {
   message.value = "A sus puestos...";
   data.value = [];
 
-  Motion.removeAllListeners();
-
   setTimeout(() => {
     message.value = "¡Listos!";
 
-    Motion.addListener('accel', handleAcceleration);
+    Motion.addListener('accel', event => {
+      const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
+      data.value.push({ time: performance.now(), acceleration });
+      const reactionTime = (performance.now() - (shotTime || 0)) / 1000;
+      if (acceleration > threshold) {
+        saveReactionTime(reactionTime);
+        Motion.removeAllListeners();
+      }
+    });
 
     setTimeout(() => {
       sounds.go.play();
       message.value = "¡Ya!";
       shotTime = performance.now();
 
-      Motion.addListener('accel', handleReaction);
+      Motion.addListener('accel', event => {
+        const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
+        const reactionTime = (performance.now() - (shotTime || 0)) / 1000;
+
+        if (acceleration > threshold) {
+          saveReactionTime(reactionTime);
+          Motion.removeAllListeners();
+        }
+      });
     }, Math.random() * 2000 + 1000);
   }, 2000);
-};
-
-const handleAcceleration = (event: any) => {
-  const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
-  data.value.push({ time: performance.now(), acceleration });
-};
-
-const handleReaction = (event: any) => {
-  if (shotTime === null) return;
-  const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
-  const reactionTime = (performance.now() - shotTime) / 1000; // Tiempo en segundos
-
-  if (acceleration > threshold) {
-    const adjustedReactionTime = reactionTime - (shotTime ? performance.now() / 1000 : 0);
-    saveReactionTime(adjustedReactionTime);
-    Motion.removeAllListeners();
-  }
 };
 
 const saveReactionTime = async (reactionTime: number) => {

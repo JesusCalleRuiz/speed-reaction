@@ -29,6 +29,7 @@ onMounted(() => {
       data: {
         labels: [],
         datasets: [{
+          label: 'Aceleración',
           borderColor: '#8884d8',
           borderWidth: 2,
           data: [],
@@ -37,7 +38,12 @@ onMounted(() => {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
       }
     });
   }
