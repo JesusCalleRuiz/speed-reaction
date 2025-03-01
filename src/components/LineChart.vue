@@ -10,34 +10,41 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
+interface DataPoint {
+  time: number;
+  acceleration: number;
+}
+
 const props = defineProps({
-  data: Array
+  data: Array as PropType<DataPoint[]>
 });
 
-const chartCanvas = ref(null);
-let chartInstance = null;
+const chartCanvas = ref<HTMLCanvasElement | null>(null);
+let chartInstance: Chart | null = null;
 
 onMounted(() => {
-  chartInstance = new Chart(chartCanvas.value, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Aceleración',
-        borderColor: '#8884d8',
-        borderWidth: 2,
-        data: []
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false
-    }
-  });
+  if (chartCanvas.value) {
+    chartInstance = new Chart(chartCanvas.value, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Aceleración',
+          borderColor: '#8884d8',
+          borderWidth: 2,
+          data: []
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
 });
 
 watch(() => props.data, (newData) => {
-  if (chartInstance) {
+  if (newData && chartInstance) {
     chartInstance.data.labels = newData.map((point) => (point.time / 1000).toFixed(2));
     chartInstance.data.datasets[0].data = newData.map(point => point.acceleration);
     chartInstance.update();
