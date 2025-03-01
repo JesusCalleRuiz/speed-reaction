@@ -18,7 +18,7 @@ interface DataPoint {
 
 const props = defineProps({
   data: Array as PropType<DataPoint[]>,
-  shotTime: Number as PropType<number | null> 
+  shotTime: Number as PropType<number | null>
 });
 
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
@@ -60,24 +60,24 @@ watch(() => props.data, (newData) => {
     chartInstance.data.labels = newData.map(point => (point.time / 1000).toFixed(2));
     chartInstance.data.datasets[0].data = newData.map(point => point.acceleration);
 
-    if (chartInstance && chartInstance.options.plugins) {
-      chartInstance.options.plugins.annotation = chartInstance.options.plugins.annotation || { annotations: {} };
+    if (props.shotTime !== undefined && props.shotTime !== null) {
+      const shotTimeInSeconds = props.shotTime / 1000;
 
-      if (props.shotTime !== undefined && props.shotTime !== null) {
-        chartInstance.options.plugins.annotation.annotations = {
+      chartInstance.options.plugins.annotation = {
+        annotations: {
           shotLine: {
             type: 'line',
-            xMin: (props.shotTime / 1000).toFixed(2),
-            xMax: (props.shotTime / 1000).toFixed(2),
+            xMin: shotTimeInSeconds,
+            xMax: shotTimeInSeconds,
             borderColor: 'red',
             borderWidth: 2,
             label: {
               content: 'Disparo',
-              position: 'top'
+              position: 'start'
             }
           }
-        };
-      }
+        }
+      };
     }
 
     chartInstance.update();
