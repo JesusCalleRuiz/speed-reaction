@@ -6,7 +6,7 @@
         <MenuComponent />
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="false" class="ion-padding">
+    <ion-content :fullscreen="true" class="ion-padding">
       <div class="center-content">
         <div class="time-display">
           <h2>{{ message }}</h2>
@@ -33,7 +33,7 @@ const ms = ref("ms")
 const running = ref(false);
 let shotTime: number | null = null;
 const data = ref<{ time: number, acceleration: number }[]>([]);
-const threshold = 1.5;
+const threshold = 1.0;
 
 const sounds = {
   go: new Audio('/assets/go.mp3'),
@@ -71,7 +71,6 @@ const startCountdown = () => {
 
         if (acceleration > threshold) {
           saveReactionTime(reactionTime);
-          Motion.removeAllListeners();
         }
       });
     }, setToGoTime * 1000);

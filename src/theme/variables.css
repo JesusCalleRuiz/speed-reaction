@@ -8,5 +8,7 @@ http://ionicframework.com/docs/theming/ */
     --ion-color-primary-shade: #7a0000; /* Un tono más oscuro de rojo */
     --ion-color-primary-tint: #9c0000; /* Un tono más claro de rojo */
 }
-
+.ion-padding {
+    padding: env(safe-area-inset-top) 16px 16px 16px; /* margen superior */
+  }
 
