@@ -35,7 +35,8 @@ let shotTime: number | null = null;
 let preShotTime: number | null = null;
 const data = ref<{ time: number, acceleration: number }[]>([]);
 const threshold = 1.0;
-let movementDetectedBeforeShot = false;
+let movementDetectedBeforeShot = false; 
+let accelHandler: PluginListenerHandle | null = null;
 
 const sounds = {
   go: new Audio('/assets/go.mp3'),
@@ -54,12 +55,11 @@ const startCountdown = async () => {
   preShotTime = null;
   data.value = [];
   shotTime = null;
-  await Motion.removeAllListeners();
 
   sounds.onyourmarks.play();
   setTimeout(() => {
     sounds.set.play();
-    Motion.addListener('accel', event => {
+    Motion.addListener('accel', async event => {
       const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
       data.value.push({ time: performance.now(), acceleration });
 
@@ -67,13 +67,15 @@ const startCountdown = async () => {
         movementDetectedBeforeShot = true;
         preShotTime = performance.now(); 
       }
+    }).then(handler => {
+      accelHandler = handler; 
     });
 
     setTimeout(() => {
       sounds.go.play();
       shotTime = performance.now();
 
-      Motion.addListener('accel', event => {
+      Motion.addListener('accel', async event => {
         const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
         if (shotTime && acceleration > threshold) {
           let reactionTime = (performance.now() - shotTime) / 1000;
@@ -83,13 +85,23 @@ const startCountdown = async () => {
           }
 
           saveReactionTime(reactionTime);
-          Motion.removeAllListeners();
+          stopAcceleration();
         }
+      }).then(handler => {
+        accelHandler = handler;
       });
 
     }, setToGoTime * 1000); 
 
   }, onyourmarksToSetTime * 1000);
+};
+
+const stopAcceleration = () => {
+  if (accelHandler) {
+    accelHandler.remove();
+    accelHandler = null;
+    console.log("🚫 Listener de aceleración detenido.");
+  }
 };
 
 const saveReactionTime = async (reactionTime: number) => {
@@ -105,6 +117,7 @@ const saveReactionTime = async (reactionTime: number) => {
     console.error("Error al enviar el tiempo:", error);
   }
 };
+
 
 </script>
 
