@@ -41,13 +41,11 @@ const sounds = {
   set: new Audio('/assets/getset.mp3'),
 };
 
-const startCountdown = async () => {
+const startCountdown = () => {
   const onyourmarksToSetTime = Number(localStorage.getItem("onyourmarksToSetTime")) || 5.0;
   const setToGoTimeMin = Number(localStorage.getItem("setToGoTimeMin")) || 2.0;
   const setToGoTimeMax = Number(localStorage.getItem("setToGoTimeMax")) || 3.0;
   const setToGoTime = Math.random() * (setToGoTimeMax - setToGoTimeMin) + setToGoTimeMin;
-
-   await Motion.removeAllListeners();
 
   //a sus puestos
   sounds.onyourmarks.play();
