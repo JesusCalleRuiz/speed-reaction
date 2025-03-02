@@ -12,3 +12,15 @@ http://ionicframework.com/docs/theming/ */
     padding: env(safe-area-inset-top) 16px 16px 16px; /* margen superior */
   }
 
+  /* Asegurar que ion-header no se solape con la barra de notificaciones */
+ion-header {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  /* Ajustar el contenido para que respete el área segura */
+  ion-content {
+    --padding-top: env(safe-area-inset-top);
+    --padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+

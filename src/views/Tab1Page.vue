@@ -12,7 +12,7 @@
           <h2>{{ message }}</h2>
           <h1>{{ ms }}</h1>
         </div>
-        <LineChart :data="data"  />
+        <LineChart :data="data" />
         <ion-button class="boton" @click="startCountdown" v-if="!running">Iniciar</ion-button>
       </div>
     </ion-content>
@@ -28,12 +28,14 @@ import MenuComponent from "@/components/MenuComponent.vue";
 import eventBus from "@/eventBus";
 import LineChart from "@/components/LineChart.vue";
 
-const message = ref("000")
-const ms = ref("ms")
+const message = ref("000");
+const ms = ref("ms");
 const running = ref(false);
 let shotTime: number | null = null;
+let preShotTime: number | null = null;
 const data = ref<{ time: number, acceleration: number }[]>([]);
 const threshold = 1.0;
+let movementDetectedBeforeShot = false;
 
 const sounds = {
   go: new Audio('/assets/go.mp3'),
@@ -41,45 +43,59 @@ const sounds = {
   set: new Audio('/assets/getset.mp3'),
 };
 
-const startCountdown = () => {
+const startCountdown = async () => {
   const onyourmarksToSetTime = Number(localStorage.getItem("onyourmarksToSetTime")) || 5.0;
   const setToGoTimeMin = Number(localStorage.getItem("setToGoTimeMin")) || 2.0;
   const setToGoTimeMax = Number(localStorage.getItem("setToGoTimeMax")) || 3.0;
   const setToGoTime = Math.random() * (setToGoTimeMax - setToGoTimeMin) + setToGoTimeMin;
 
-  //a sus puestos
-  sounds.onyourmarks.play();
   running.value = true;
+  movementDetectedBeforeShot = false;
+  preShotTime = null;
   data.value = [];
+  shotTime = null;
+  await Motion.removeAllListeners();
 
+  sounds.onyourmarks.play();
   setTimeout(() => {
-    //listos
     sounds.set.play();
-    // Empieza a registrar movimiento
     Motion.addListener('accel', event => {
       const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
       data.value.push({ time: performance.now(), acceleration });
+
+      if (!shotTime && acceleration > threshold) {
+        movementDetectedBeforeShot = true;
+        preShotTime = performance.now(); 
+      }
     });
 
     setTimeout(() => {
       sounds.go.play();
       shotTime = performance.now();
-      console.log(shotTime);
+
       Motion.addListener('accel', event => {
         const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
-        const reactionTime = (performance.now() - (shotTime || 0)) / 1000;
+        if (shotTime && acceleration > threshold) {
+          let reactionTime = (performance.now() - shotTime) / 1000;
 
-        if (acceleration > threshold) {
+          if (movementDetectedBeforeShot && preShotTime) {
+            reactionTime = (preShotTime - shotTime) / 1000;
+          }
+
           saveReactionTime(reactionTime);
+          Motion.removeAllListeners();
         }
       });
-    }, setToGoTime * 1000);
+
+    }, setToGoTime * 1000); 
+
   }, onyourmarksToSetTime * 1000);
 };
 
 const saveReactionTime = async (reactionTime: number) => {
   message.value = `${Math.round(reactionTime * 1000)}`;
   running.value = false;
+  
   try {
     axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
     await axios.post('https://speedreaction.dev-alicenter.es/api/times', { time: reactionTime });
@@ -89,6 +105,7 @@ const saveReactionTime = async (reactionTime: number) => {
     console.error("Error al enviar el tiempo:", error);
   }
 };
+
 </script>
 
 <style scoped>

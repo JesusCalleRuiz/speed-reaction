@@ -6,7 +6,7 @@
         <MenuComponent/>
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="false" class="ion-padding">
+    <ion-content :fullscreen="true" class="ion-padding">
       <div v-if="loading" class="loading">Cargando...</div>
       <ion-list v-else-if="times.length > 0">
         <ion-item v-for="time in times" :key="time.id">

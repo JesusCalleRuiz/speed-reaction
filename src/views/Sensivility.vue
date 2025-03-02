@@ -6,7 +6,7 @@
           <MenuComponent/>
         </ion-toolbar>
       </ion-header>
-      <ion-content :fullscreen="false" class="ion-padding">
+      <ion-content :fullscreen="true" class="ion-padding">
        
       </ion-content>
     </ion-page>
