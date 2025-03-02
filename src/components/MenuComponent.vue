@@ -6,7 +6,9 @@
     <ion-popover :is-open="isOpen" :event="popoverEvent" @didDismiss="isOpen = false">
       <ion-content>
         <ion-list>
-          <ion-item :button="true" :detail="false" @click="goToSettings">Ajustes</ion-item>
+          <ion-item :button="true" :detail="false" @click="goToTimes">Tiempos</ion-item>
+          <ion-item :button="true" :detail="false" @click="goToSounds">Sonidos</ion-item>
+          <ion-item :button="true" :detail="false" @click="goToSensibility">Sensibilidad</ion-item>
           <ion-item :button="true" :detail="false" @click="logout">Cerrar Sesión</ion-item>
         </ion-list>
       </ion-content>
@@ -29,9 +31,17 @@ const openPopover = (event: Event) => {
   popoverEvent.value = event;
   isOpen.value = true;
 };
-const goToSettings = () => {
+const goToSounds = () => {
   isOpen.value = false;
-  router.push("/tabs/tab1");
+  router.push("/sounds");
+};
+const goToTimes = () => {
+  isOpen.value = false;
+  router.push("/times");
+};
+const goToSensibility = () => {
+  isOpen.value = false;
+  router.push("/sensivility");
 };
 const logout = async () => {
   isOpen.value = false;

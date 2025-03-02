@@ -7,9 +7,8 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, PropType } from 'vue';
 import { Chart, registerables } from 'chart.js';
-import annotationPlugin from 'chartjs-plugin-annotation';
 
-Chart.register(...registerables, annotationPlugin);
+Chart.register(...registerables);
 
 interface DataPoint {
   time: number;
@@ -17,8 +16,7 @@ interface DataPoint {
 }
 
 const props = defineProps({
-  data: Array as PropType<DataPoint[]>,
-  shotTime: Number as PropType<number | null>
+  data: Array as PropType<DataPoint[]>
 });
 
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
@@ -32,11 +30,11 @@ onMounted(() => {
         labels: [],
         datasets: [{
           label: 'Aceleración',
-          borderColor: '#8884d8',
+          borderColor: '#24da1e',
           borderWidth: 2,
           data: [],
-          pointRadius: 2,
-          fill: false
+          pointRadius: 0,
+          cubicInterpolationMode: 'monotone',
         }]
       },
       options: {
@@ -44,9 +42,8 @@ onMounted(() => {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            display: false
+            display: false,
           },
-          annotation: {}
         }
       }
     });
@@ -55,31 +52,8 @@ onMounted(() => {
 
 watch(() => props.data, (newData) => {
   if (newData && chartInstance) {
-    chartInstance.data.labels = newData.map(point => (point.time / 1000).toFixed(2));
-    chartInstance.data.datasets[0].data = newData.map(point => point.acceleration);
-
-    if (chartInstance.options.plugins && 'annotation' in chartInstance.options.plugins) {
-      if (props.shotTime !== undefined && props.shotTime !== null) {
-        const shotTimeInSeconds = props.shotTime / 1000;
-
-        chartInstance.options.plugins.annotation = {
-          annotations: {
-            shotLine: {
-              type: 'line',
-              xMin: shotTimeInSeconds,
-              xMax: shotTimeInSeconds,
-              borderColor: 'red',
-              borderWidth: 2,
-              label: {
-                content: 'Disparo',
-                position: 'start'
-              }
-            }
-          }
-        };
-      }
-    }
-
+    chartInstance.data.labels = newData.map((point: DataPoint) => (point.time / 1000).toFixed(2));
+    chartInstance.data.datasets[0].data = newData.map((point: DataPoint) => point.acceleration);
     chartInstance.update();
   }
 }, { deep: true });

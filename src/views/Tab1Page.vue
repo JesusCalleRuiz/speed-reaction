@@ -6,119 +6,128 @@
         <MenuComponent />
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true" class="ion-padding">
+    <ion-content :fullscreen="false" class="ion-padding">
       <div class="center-content">
-        <h2>{{ message }}</h2>
-        <ion-button @click="startCountdown" v-if="!running">Iniciar</ion-button>
-        <div v-if="!running">
-          <p>Sensibilidad: {{ sensitivity }}</p>
-          <input type="range" v-model="sensitivity" min="0.01" max="1" step="0.01">
+        <div class="time-display">
+          <h2>{{ message }}</h2>
+          <h1>{{ ms }}</h1>
         </div>
-        <LineChart :data="chartData" :shotTime="shotTime"/>
+        <LineChart :data="data"  />
+        <ion-button class="boton" @click="startCountdown" v-if="!running">Iniciar</ion-button>
       </div>
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref } from 'vue';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton } from '@ionic/vue';
+import { Motion } from '@capacitor/motion';
 import axios from 'axios';
 import MenuComponent from "@/components/MenuComponent.vue";
-import LineChart from "@/components/LineChart.vue";
 import eventBus from "@/eventBus";
-import { Motion } from '@capacitor/motion';
+import LineChart from "@/components/LineChart.vue";
 
-const message = ref("Presiona 'Iniciar' para comenzar");
+const message = ref("000")
+const ms = ref("ms")
 const running = ref(false);
-const sensitivity = ref(0.1);
-const chartData = ref<{ time: number, acceleration: number }[]>([]);
-const shotTime = ref<number | null>(null);
-const showChart = ref(false);
-let startTime: number | null = null;
-let movementDetected = false;
-let movementBeforeStart = false;
-let accelListener: any = null;
+let shotTime: number | null = null;
+const data = ref<{ time: number, acceleration: number }[]>([]);
+const threshold = 1.5;
 
 const sounds = {
   go: new Audio('/assets/go.mp3'),
+  onyourmarks: new Audio('/assets/onyourmarks.mp3'),
+  set: new Audio('/assets/getset.mp3'),
 };
 
-onUnmounted(() => {
-  stopMotionDetection();
-});
+const startCountdown = async () => {
+  const onyourmarksToSetTime = Number(localStorage.getItem("onyourmarksToSetTime")) || 5.0;
+  const setToGoTimeMin = Number(localStorage.getItem("setToGoTimeMin")) || 2.0;
+  const setToGoTimeMax = Number(localStorage.getItem("setToGoTimeMax")) || 3.0;
+  const setToGoTime = Math.random() * (setToGoTimeMax - setToGoTimeMin) + setToGoTimeMin;
 
-const startCountdown = () => {
+   await Motion.removeAllListeners();
+
+  //a sus puestos
+  sounds.onyourmarks.play();
   running.value = true;
-  message.value = "A sus puestos...";
-  movementDetected = false;
-  movementBeforeStart = false;
-  
-  chartData.value = [];
-  shotTime.value = null;
-  showChart.value = false;
+  data.value = [];
 
   setTimeout(() => {
-    message.value = "¡Listos!";
-    startMotionDetection();
+    //listos
+    sounds.set.play();
+    // Empieza a registrar movimiento
+    Motion.addListener('accel', event => {
+      const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
+      data.value.push({ time: performance.now(), acceleration });
+    });
 
     setTimeout(() => {
       sounds.go.play();
-      message.value = "¡Ya!";
-      startTime = performance.now();
+      shotTime = performance.now();
+      console.log(shotTime);
+      Motion.addListener('accel', event => {
+        const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
+        const reactionTime = (performance.now() - (shotTime || 0)) / 1000;
 
-      if (movementBeforeStart) {
-        recordReactionTime(true);
-      } else {
-        showChart.value = true;
-      }
-    }, Math.random() * 2000 + 1000);
-  }, 2000);
+        if (acceleration > threshold) {
+          saveReactionTime(reactionTime);
+          Motion.removeAllListeners();
+        }
+      });
+    }, setToGoTime * 1000);
+  }, onyourmarksToSetTime * 1000);
 };
 
-const startMotionDetection = async () => {
-  accelListener = await Motion.addListener('accel', (event) => {
-    const { x, y, z } = event.accelerationIncludingGravity;
-    const acceleration = Math.sqrt(x ** 2 + y ** 2 + z ** 2);
-
-    if (startTime !== null) {
-      const currentTime = performance.now() - startTime;
-      chartData.value.push({ time: currentTime, acceleration });
-    }
-
-    if (acceleration > sensitivity.value) {
-      if (!startTime) {
-        movementBeforeStart = true;
-      } else if (!movementDetected) {
-        movementDetected = true;
-        recordReactionTime(false);
-      }
-    }
-  });
-};
-
-const stopMotionDetection = () => {
-  if (accelListener) {
-    accelListener.remove();
-  }
-};
-
-const recordReactionTime = async (falseStart: boolean) => {
-  stopMotionDetection();
-  if (startTime !== null) {
-    const reactionTime = falseStart ? -(performance.now() - startTime) / 1000 : (performance.now() - startTime) / 1000;
-    message.value = `${reactionTime.toFixed(3)}s`;
-    running.value = false;
-
-    shotTime.value = performance.now() - startTime!;
-    try {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
-      await axios.post('https://speedreaction.dev-alicenter.es/api/times', { time: reactionTime });
-      console.log("Tiempo registrado correctamente.");
-      eventBus.emit("refreshTimes");
-    } catch (error) {
-      console.error("Error al enviar el tiempo:", error);
-    }
+const saveReactionTime = async (reactionTime: number) => {
+  message.value = `${Math.round(reactionTime * 1000)}`;
+  running.value = false;
+  try {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+    await axios.post('https://speedreaction.dev-alicenter.es/api/times', { time: reactionTime });
+    console.log("Tiempo registrado correctamente.");
+    eventBus.emit("refreshTimes");
+  } catch (error) {
+    console.error("Error al enviar el tiempo:", error);
   }
 };
 </script>
+
+<style scoped>
+.center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+
+.time-display {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+h2 {
+  margin-top: 30px;
+  font-size: 6rem;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: normal;
+}
+
+.boton {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 60px; 
+  border-radius: 0;
+  text-align: center;
+  font-size: 18px;
+}
+</style>

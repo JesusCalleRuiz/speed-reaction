@@ -38,7 +38,22 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/Tab3Page.vue')
       }
     ]
-  }
+  },
+  {
+    path: '/times',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/Times.vue')
+  },
+  {
+    path: '/sounds',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/Sounds.vue')
+  },
+  {
+    path: '/sensivility',
+    meta: { requiresAuth: true },
+    component: () => import('@/views/Sensivility.vue')
+  },
 ];
 
 const router = createRouter({

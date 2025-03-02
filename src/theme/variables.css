@@ -1,11 +1,12 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
 :root {
-    --ion-color-primary: #8B0000; /* Rojo oscuro */
+    --ion-color-primary: #a80000; /* Rojo oscuro */
     --ion-color-primary-rgb: 139, 0, 0;
     --ion-color-primary-contrast: #ffffff; /* Contraste en blanco para mejor visibilidad */
     --ion-color-primary-contrast-rgb: 255, 255, 255;
     --ion-color-primary-shade: #7a0000; /* Un tono más oscuro de rojo */
     --ion-color-primary-tint: #9c0000; /* Un tono más claro de rojo */
 }
+
 

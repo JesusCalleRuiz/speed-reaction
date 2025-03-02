@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-content :fullscreen="true" class="ion-padding">
+    <ion-content :fullscreen="false" class="ion-padding">
       <ion-card>
         <ion-card-header>
           <ion-card-title>Iniciar Sesión</ion-card-title>
