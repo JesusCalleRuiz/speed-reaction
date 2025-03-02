@@ -27,6 +27,7 @@ import axios from 'axios';
 import MenuComponent from "@/components/MenuComponent.vue";
 import eventBus from "@/eventBus";
 import LineChart from "@/components/LineChart.vue";
+import { PluginListenerHandle } from '@capacitor/core';
 
 const message = ref("000");
 const ms = ref("ms");
