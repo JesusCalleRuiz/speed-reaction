@@ -16,7 +16,7 @@
         <ion-button class="boton" @click="startCountdown" v-if="!running">Iniciar</ion-button>
       </div>
     </ion-content>
-  </ion-page>
+  </ion-page> 
 </template>
 
 <script setup lang="ts">
@@ -36,7 +36,7 @@ let shotTime: number | null = null;
 let preShotTime: number | null = null;
 const data = ref<{ time: number, acceleration: number }[]>([]);
 const threshold = 1.0;
-let movementDetectedBeforeShot = false; 
+let movementDetectedBeforeShot = false;
 let accelHandler: PluginListenerHandle | null = null;
 
 const sounds = {
@@ -51,48 +51,68 @@ const startCountdown = async () => {
   const setToGoTimeMax = Number(localStorage.getItem("setToGoTimeMax")) || 3.0;
   const setToGoTime = Math.random() * (setToGoTimeMax - setToGoTimeMin) + setToGoTimeMin;
 
+  message.value = "000";
   running.value = true;
   movementDetectedBeforeShot = false;
   preShotTime = null;
-  data.value = [];
   shotTime = null;
+  data.value = [];
 
   sounds.onyourmarks.play();
   setTimeout(() => {
     sounds.set.play();
-    Motion.addListener('accel', async event => {
+
+    Motion.addListener('accel', (event) => {
       const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
-      data.value.push({ time: performance.now(), acceleration });
+      const currentTime = performance.now();
+      let reactionTime: number;
+      data.value.push({ time: currentTime, acceleration });
 
       if (!shotTime && acceleration > threshold) {
         movementDetectedBeforeShot = true;
-        preShotTime = performance.now(); 
+        preShotTime = currentTime;
+        if (!shotTime) return;
+        reactionTime = (preShotTime - shotTime) / 1000;
+        message.value = `${Math.round(reactionTime * 1000)}`
       }
     }).then(handler => {
-      accelHandler = handler; 
+      accelHandler = handler;
     });
 
     setTimeout(() => {
       sounds.go.play();
       shotTime = performance.now();
 
-      Motion.addListener('accel', async event => {
+      stopAcceleration();
+      Motion.addListener('accel', (event) => {
         const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
-        if (shotTime && acceleration > threshold) {
-          let reactionTime = (performance.now() - shotTime) / 1000;
+        const currentTime = performance.now();
+        data.value.push({ time: currentTime, acceleration });
+
+        if (acceleration > threshold) {
+          let reactionTime: number;
 
           if (movementDetectedBeforeShot && preShotTime) {
+            //salida nula 
+            if (!shotTime) return;
             reactionTime = (preShotTime - shotTime) / 1000;
+            saveReactionTime(reactionTime);
+            stopAcceleration();
+          } else {
+            //salida correcta
+            if (!shotTime) return;
+            reactionTime = (currentTime - shotTime) / 1000;
+            setTimeout(() => {
+              saveReactionTime(reactionTime);
+              stopAcceleration();
+            }, 200);
           }
-
-          saveReactionTime(reactionTime);
-          stopAcceleration();
         }
       }).then(handler => {
         accelHandler = handler;
       });
 
-    }, setToGoTime * 1000); 
+    }, setToGoTime * 1000);
 
   }, onyourmarksToSetTime * 1000);
 };
@@ -101,14 +121,13 @@ const stopAcceleration = () => {
   if (accelHandler) {
     accelHandler.remove();
     accelHandler = null;
-    console.log("🚫 Listener de aceleración detenido.");
   }
 };
 
 const saveReactionTime = async (reactionTime: number) => {
   message.value = `${Math.round(reactionTime * 1000)}`;
   running.value = false;
-  
+
   try {
     axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
     await axios.post('https://speedreaction.dev-alicenter.es/api/times', { time: reactionTime });
@@ -118,8 +137,6 @@ const saveReactionTime = async (reactionTime: number) => {
     console.error("Error al enviar el tiempo:", error);
   }
 };
-
-
 </script>
 
 <style scoped>
