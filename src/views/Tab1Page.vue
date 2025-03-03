@@ -1,24 +1,3 @@
-<template>
-  <ion-page>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Reacción</ion-title>
-        <MenuComponent />
-      </ion-toolbar>
-    </ion-header>
-    <ion-content :fullscreen="true" class="ion-padding">
-      <div class="center-content">
-        <div class="time-display">
-          <h2>{{ message }}</h2>
-          <h1>{{ ms }}</h1>
-        </div>
-        <LineChart :data="data" />
-        <ion-button class="boton" @click="startCountdown" v-if="!running">Iniciar</ion-button>
-      </div>
-    </ion-content>
-  </ion-page> 
-</template>
-
 <script setup lang="ts">
 import { ref } from 'vue';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton } from '@ionic/vue';
@@ -38,6 +17,7 @@ const data = ref<{ time: number, acceleration: number }[]>([]);
 const threshold = 1.0;
 let movementDetectedBeforeShot = false;
 let accelHandler: PluginListenerHandle | null = null;
+let minReactionTime: number | null = null;
 
 const sounds = {
   go: new Audio('/assets/go.mp3'),
@@ -57,23 +37,20 @@ const startCountdown = async () => {
   preShotTime = null;
   shotTime = null;
   data.value = [];
+  minReactionTime = null;
 
   sounds.onyourmarks.play();
   setTimeout(() => {
     sounds.set.play();
-
     Motion.addListener('accel', (event) => {
       const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
       const currentTime = performance.now();
-      let reactionTime: number;
       data.value.push({ time: currentTime, acceleration });
 
       if (!shotTime && acceleration > threshold) {
         movementDetectedBeforeShot = true;
         preShotTime = currentTime;
-        if (!shotTime) return;
-        reactionTime = (preShotTime - shotTime) / 1000;
-        message.value = `${Math.round(reactionTime * 1000)}`
+        message.value = `${Math.round((preShotTime - (shotTime || preShotTime)) / 1000 * 1000)}`;
       }
     }).then(handler => {
       accelHandler = handler;
@@ -82,28 +59,31 @@ const startCountdown = async () => {
     setTimeout(() => {
       sounds.go.play();
       shotTime = performance.now();
-
       stopAcceleration();
+
       Motion.addListener('accel', (event) => {
         const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
         const currentTime = performance.now();
         data.value.push({ time: currentTime, acceleration });
 
         if (acceleration > threshold) {
-          let reactionTime: number;
+          if(!shotTime) return;
+          let reactionTime = (currentTime - shotTime) / 1000;
 
           if (movementDetectedBeforeShot && preShotTime) {
-            //salida nula 
-            if (!shotTime) return;
             reactionTime = (preShotTime - shotTime) / 1000;
-            saveReactionTime(reactionTime);
-            stopAcceleration();
-          } else {
-            //salida correcta
-            if (!shotTime) return;
-            reactionTime = (currentTime - shotTime) / 1000;
+            message.value = `${Math.round(reactionTime * 1000)}`;
             setTimeout(() => {
               saveReactionTime(reactionTime);
+              stopAcceleration();
+            }, 100);
+          } else {
+            if (minReactionTime === null || reactionTime < minReactionTime) {
+              minReactionTime = reactionTime;
+              message.value = `${Math.round(minReactionTime * 1000)}`;
+            }
+            setTimeout(() => {
+              saveReactionTime(minReactionTime!);
               stopAcceleration();
             }, 200);
           }
@@ -111,9 +91,7 @@ const startCountdown = async () => {
       }).then(handler => {
         accelHandler = handler;
       });
-
     }, setToGoTime * 1000);
-
   }, onyourmarksToSetTime * 1000);
 };
 
@@ -127,7 +105,6 @@ const stopAcceleration = () => {
 const saveReactionTime = async (reactionTime: number) => {
   message.value = `${Math.round(reactionTime * 1000)}`;
   running.value = false;
-
   try {
     axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
     await axios.post('https://speedreaction.dev-alicenter.es/api/times', { time: reactionTime });
@@ -138,41 +115,3 @@ const saveReactionTime = async (reactionTime: number) => {
   }
 };
 </script>
-
-<style scoped>
-.center-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  text-align: center;
-}
-
-.time-display {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-h2 {
-  margin-top: 30px;
-  font-size: 6rem;
-}
-
-h1 {
-  font-size: 2rem;
-  font-weight: normal;
-}
-
-.boton {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100vw;
-  height: 60px; 
-  border-radius: 0;
-  text-align: center;
-  font-size: 18px;
-}
-</style>
