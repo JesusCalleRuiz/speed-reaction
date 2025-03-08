@@ -44,6 +44,24 @@ onMounted(() => {
           legend: {
             display: false,
           },
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: '#b1b1b1'
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.2)'
+            }
+          },
+          y: {
+            ticks: {
+              color: '#b1b1b1'
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.2)'
+            }
+          }
         }
       }
     });
