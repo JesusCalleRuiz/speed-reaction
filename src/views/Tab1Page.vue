@@ -55,7 +55,7 @@ const startCountdown = async () => {
   running.value = true;
   movementDetectedBeforeShot = false;
   preShotTime = null;
-  shotTime = performance.now() + (onyourmarksToSetTime + setToGoTime) * 1000;
+  shotTime = null;
   data.value = [];
 
   sounds.onyourmarks.play();
@@ -65,41 +65,49 @@ const startCountdown = async () => {
     Motion.addListener('accel', (event) => {
       const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
       const currentTime = performance.now();
-      let reactionTime: number;
       data.value.push({ time: currentTime, acceleration });
 
       if (!shotTime && acceleration > threshold) {
         movementDetectedBeforeShot = true;
         preShotTime = currentTime;
-        reactionTime = (preShotTime - shotTime!) / 1000;
-        saveReactionTime(reactionTime);
-        stopAcceleration();
       }
     }).then(handler => {
       accelHandler = handler;
     });
 
     setTimeout(() => {
+      let reactionTime: number;
       sounds.go.play();
       shotTime = performance.now();
-      if(!movementDetectedBeforeShot){
+      if (movementDetectedBeforeShot && preShotTime) {
+        //salida nula
+        if (!shotTime) return;
+        reactionTime = (preShotTime - shotTime) / 1000;
+        saveReactionTime(reactionTime);
+        stopAcceleration();
+        return;
+      }else{
+        stopAcceleration();
         Motion.addListener('accel', (event) => {
           const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
           const currentTime = performance.now();
           data.value.push({ time: currentTime, acceleration });
-          //salida correcta
+
           if (acceleration > threshold) {
             let reactionTime: number;
             if (!shotTime) return;
             reactionTime = (currentTime - shotTime) / 1000;
             saveReactionTime(reactionTime);
             stopAcceleration();
+            return;
           }
         }).then(handler => {
           accelHandler = handler;
         });
       }
+
     }, setToGoTime * 1000);
+
   }, onyourmarksToSetTime * 1000);
 };
 
@@ -155,7 +163,6 @@ h1 {
   position: fixed;
   bottom: 0;
   left: 0;
-  right: 0;
   width: 100vw;
   height: 60px; 
   border-radius: 0;
