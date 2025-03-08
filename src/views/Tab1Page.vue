@@ -55,7 +55,7 @@ const startCountdown = async () => {
   running.value = true;
   movementDetectedBeforeShot = false;
   preShotTime = null;
-  shotTime = null;
+  shotTime = performance.now() + (onyourmarksToSetTime + setToGoTime) * 1000;
   data.value = [];
 
   sounds.onyourmarks.play();
@@ -71,7 +71,9 @@ const startCountdown = async () => {
       if (!shotTime && acceleration > threshold) {
         movementDetectedBeforeShot = true;
         preShotTime = currentTime;
-        message.value = `${Math.round((preShotTime - (shotTime || preShotTime)) / 1000 * 1000)}`;
+        reactionTime = (preShotTime - shotTime!) / 1000;
+        saveReactionTime(reactionTime);
+        stopAcceleration();
       }
     }).then(handler => {
       accelHandler = handler;
@@ -80,38 +82,24 @@ const startCountdown = async () => {
     setTimeout(() => {
       sounds.go.play();
       shotTime = performance.now();
-
-      stopAcceleration();
-      Motion.addListener('accel', (event) => {
-        const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
-        const currentTime = performance.now();
-        data.value.push({ time: currentTime, acceleration });
-
-        if (acceleration > threshold) {
-          let reactionTime: number;
-
-          if (movementDetectedBeforeShot && preShotTime) {
-            //salida nula 
-            if (!shotTime) return;
-            reactionTime = (preShotTime - shotTime) / 1000;
-            saveReactionTime(reactionTime);
-            stopAcceleration();
-            return;
-          } else {
-            //salida correcta
+      if(!movementDetectedBeforeShot){
+        Motion.addListener('accel', (event) => {
+          const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
+          const currentTime = performance.now();
+          data.value.push({ time: currentTime, acceleration });
+          //salida correcta
+          if (acceleration > threshold) {
+            let reactionTime: number;
             if (!shotTime) return;
             reactionTime = (currentTime - shotTime) / 1000;
             saveReactionTime(reactionTime);
             stopAcceleration();
-            return;
           }
-        }
-      }).then(handler => {
-        accelHandler = handler;
-      });
-
+        }).then(handler => {
+          accelHandler = handler;
+        });
+      }
     }, setToGoTime * 1000);
-
   }, onyourmarksToSetTime * 1000);
 };
 
@@ -167,6 +155,7 @@ h1 {
   position: fixed;
   bottom: 0;
   left: 0;
+  right: 0;
   width: 100vw;
   height: 60px; 
   border-radius: 0;

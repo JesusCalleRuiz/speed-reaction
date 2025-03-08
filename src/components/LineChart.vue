@@ -63,7 +63,7 @@ watch(() => props.data, (newData) => {
 .chart-container {
   width: 100%;
   max-width: 600px;
-  height: 300px;
+  height: 55%;
   margin: auto;
 }
 </style>
