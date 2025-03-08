@@ -70,7 +70,7 @@ onMounted(() => {
 
 watch(() => props.data, (newData) => {
   if (newData && chartInstance) {
-    chartInstance.data.labels = newData.map((point: DataPoint) => (point.time / 1000).toFixed(2));
+    chartInstance.data.labels = newData.map((point: DataPoint) => (point.time).toFixed(2));
     chartInstance.data.datasets[0].data = newData.map((point: DataPoint) => point.acceleration);
     chartInstance.update();
   }

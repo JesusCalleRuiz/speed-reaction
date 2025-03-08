@@ -41,6 +41,7 @@ let accelHandler: PluginListenerHandle | null = null;
 // 🎵 Web Audio API para menor latencia
 let audioContext: AudioContext;
 let audioBuffers: { [key: string]: AudioBuffer } = {};
+let setTime: number | null = null;
 
 const startCountdown = async () => {
   const onyourmarksToSetTime = Number(localStorage.getItem("onyourmarksToSetTime")) || 5.0;
@@ -53,16 +54,18 @@ const startCountdown = async () => {
   movementDetectedBeforeShot = false;
   preShotTime = null;
   shotTime = null;
+  setTime = null;
   data.value = [];
 
   playSound('onyourmarks');
   setTimeout(() => {
     playSound('set');
-
+    setTime = performance.now();
     Motion.addListener('accel', (event) => {
       const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
       const currentTime = performance.now();
-      data.value.push({ time: currentTime, acceleration });
+      const relativeTime = setTime ? (currentTime - setTime) / 1000 : 0;
+      data.value.push({ time: relativeTime, acceleration });
 
       if (!shotTime && acceleration > threshold) {
         movementDetectedBeforeShot = true;
@@ -89,7 +92,8 @@ const startCountdown = async () => {
         Motion.addListener('accel', (event) => {
           const acceleration = Math.sqrt(event.acceleration.x ** 2 + event.acceleration.y ** 2 + event.acceleration.z ** 2);
           const currentTime = performance.now();
-          data.value.push({ time: currentTime, acceleration });
+          const relativeTime = setTime ? (currentTime - setTime) / 1000 : 0;
+          data.value.push({ time: relativeTime, acceleration });
 
           if (acceleration > threshold) {
             let reactionTime: number;
