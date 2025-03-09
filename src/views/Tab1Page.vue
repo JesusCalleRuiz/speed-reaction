@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-header>
+    <ion-header :class="{ oculto: running }">
       <ion-toolbar>
         <ion-title>Reacción</ion-title>
         <MenuComponent />
@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {inject, onMounted, ref} from 'vue';
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton } from '@ionic/vue';
 import { Motion } from '@capacitor/motion';
 import axios from 'axios';
@@ -31,7 +31,7 @@ import { PluginListenerHandle } from '@capacitor/core';
 
 const message = ref("000");
 const ms = ref("ms");
-const running = ref(false);
+const running = inject("running", ref(false));
 let shotTime: number | null = null;
 let preShotTime: number | null = null;
 const data = ref<{ time: number, acceleration: number }[]>([]);
@@ -85,7 +85,10 @@ const startCountdown = async () => {
         reactionTime = (preShotTime - shotTime) / 1000;
         saveReactionTime(reactionTime);
         stopAcceleration();
-        playSound('go');
+        //segundo disparo por ser nula
+        setTimeout(()=>{
+          playSound('go');
+        },800);
         return;
       }else{
         stopAcceleration();
@@ -198,5 +201,11 @@ h1 {
   border-radius: 0;
   text-align: center;
   font-size: 18px;
+}
+.oculto {
+  opacity: 0;
+  transform: translateY(-20px); /* Desplaza hacia arriba */
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  pointer-events: none; /* Evita interacción con los elementos ocultos */
 }
 </style>

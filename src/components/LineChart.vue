@@ -55,6 +55,7 @@ onMounted(() => {
             }
           },
           y: {
+            min: 0,
             ticks: {
               color: '#b1b1b1'
             },

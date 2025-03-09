@@ -2,7 +2,7 @@
   <ion-page>
     <ion-tabs>
       <ion-router-outlet></ion-router-outlet>
-      <ion-tab-bar slot="bottom">
+      <ion-tab-bar slot="bottom" :class="{ oculto: running }">
         <ion-tab-button tab="tab1" href="/tabs/tab1">
           <ion-icon aria-hidden="true" :icon="isSelected('tab1') ? stopWatch : stopWatchOutline" />
           <ion-label>Registrar</ion-label>
@@ -25,13 +25,14 @@
 <script setup lang="ts">
 import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
 import {globe, list, stopwatch, stopwatchOutline, listOutline, globeOutline} from 'ionicons/icons';
-import { onMounted, onUnmounted } from 'vue';
+import {onMounted, onUnmounted, provide, ref} from 'vue';
 import { useBackButton } from '@ionic/vue';
 import { useRoute } from 'vue-router';
 
 // Obtener la ruta actual
 const route = useRoute();
-
+const running = ref(false);
+provide("running", running);
 // Computed para verificar qué tab está activa
 const isSelected = (tabName: string) => {
   return route.path.includes(tabName);
@@ -56,3 +57,11 @@ onUnmounted(() => {
   });
 });
 </script>
+<style scoped>
+.oculto {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  pointer-events: none;
+}
+</style>
