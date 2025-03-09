@@ -12,6 +12,9 @@
           <h2>{{ message }}</h2>
           <h1>{{ ms }}</h1>
         </div>
+        <div class="salida-nula-container">
+          <h1 v-if="nula" class="salida-nula">{{ message2 }}</h1>
+        </div>
         <LineChart :data="data" />
         <ion-button class="boton" @click="startCountdown" v-if="!running">Iniciar</ion-button>
       </div>
@@ -30,15 +33,16 @@ import LineChart from "@/components/LineChart.vue";
 import { PluginListenerHandle } from '@capacitor/core';
 
 const message = ref("000");
+const message2 = ref("SALIDA NULA");
 const ms = ref("ms");
 const running = inject("running", ref(false));
+const nula = ref(false);
 let shotTime: number | null = null;
 let preShotTime: number | null = null;
 const data = ref<{ time: number, acceleration: number }[]>([]);
 const threshold = 1.0;
 let movementDetectedBeforeShot = false;
 let accelHandler: PluginListenerHandle | null = null;
-// 🎵 Web Audio API para menor latencia
 let audioContext: AudioContext;
 let audioBuffers: { [key: string]: AudioBuffer } = {};
 let setTime: number | null = null;
@@ -49,6 +53,7 @@ const startCountdown = async () => {
   const setToGoTimeMax = Number(localStorage.getItem("setToGoTimeMax")) || 3.0;
   const setToGoTime = Math.random() * (setToGoTimeMax - setToGoTimeMin) + setToGoTimeMin;
 
+  nula.value = false;
   message.value = "000";
   running.value = true;
   movementDetectedBeforeShot = false;
@@ -68,6 +73,7 @@ const startCountdown = async () => {
       data.value.push({ time: relativeTime, acceleration });
 
       if (!shotTime && acceleration > threshold) {
+        nula.value = true
         movementDetectedBeforeShot = true;
         preShotTime = currentTime;
       }
@@ -210,8 +216,29 @@ h1 {
 
 .oculto {
   opacity: 0;
-  transform: translateY(-20px); /* Desplaza hacia arriba */
+  transform: translateY(-20px);
   transition: opacity 0.7s ease-out, transform 0.7s ease-out;
-  pointer-events: none; /* Evita interacción con los elementos ocultos */
+  pointer-events: none;
+}
+.salida-nula-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 50px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.salida-nula {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: red;
+  background-color: rgba(255, 0, 0, 0.2);
+  padding: 10px 20px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out;
 }
 </style>

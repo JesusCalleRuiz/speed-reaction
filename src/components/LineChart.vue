@@ -47,6 +47,7 @@ onMounted(() => {
         },
         scales: {
           x: {
+            suggestedMax: 1,
             ticks: {
               color: '#b1b1b1'
             },

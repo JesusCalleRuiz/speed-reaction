@@ -44,12 +44,15 @@ const listoutline = listOutline
 const globeFilled = globe;
 const globeoutline = globeOutline;
 
-//bloqueo de botón atrás
+//bloqueo de botón atrás solo en tabs
 onMounted(() => {
   useBackButton(9999, () => {
-    console.log("Botón de atrás bloqueado en las tabs");
+    if (!route.path.startsWith('/tabs')) {
+      window.history.back();
+    }
   });
 });
+
 
 //restaurar el botón de atrás
 onUnmounted(() => {
