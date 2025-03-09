@@ -78,7 +78,9 @@ const startCountdown = async () => {
     setTimeout(() => {
       let reactionTime: number;
       playSound('go');
-      shotTime = performance.now();
+      setTimeout(()=>{
+        shotTime = performance.now();
+      },200);
       if (movementDetectedBeforeShot && preShotTime) {
         //salida nula
         if (!shotTime) return;
@@ -196,12 +198,17 @@ h1 {
   position: fixed;
   bottom: 0;
   left: 0;
+  right: 0;
   width: 100vw;
-  height: 60px; 
+  height: 60px;
   border-radius: 0;
+  margin: 0;
+  padding: 0;
   text-align: center;
   font-size: 18px;
+  z-index: 1000;
 }
+
 .oculto {
   opacity: 0;
   transform: translateY(-20px); /* Desplaza hacia arriba */
