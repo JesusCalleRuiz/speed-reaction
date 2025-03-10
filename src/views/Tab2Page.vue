@@ -12,6 +12,8 @@
         <ion-item v-for="time in times" :key="time.id">
           <ion-label class="time-label">
             <div class="time-value">{{ time.time }}s</div>
+            <div class="valid" v-if="time.valid == 1" >VÁLIDA</div>
+            <div class="not-valid" v-if="time.valid == 0" >NULA</div>
             <div class="time-date">
               <span class="date">{{ formatDate(time.created_at) }}</span>
             </div>
@@ -31,7 +33,7 @@ import MenuComponent from "@/components/MenuComponent.vue";
 import eventBus from "@/eventBus";
 
 
-const times = ref<{ id: number; time: number; created_at: string }[]>([]);
+const times = ref<{ id: number; time: number; created_at: string; valid:number }[]>([]);
 const loading = ref(true);
 
 const getTimesByUser = async () => {
@@ -92,5 +94,23 @@ onUnmounted(() => {
   font-size: 0.9rem;
   display: flex;
   flex-direction: column;
+}
+.valid {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: greenyellow;
+  background-color: rgb(7, 76, 0);
+  padding: 5px 10px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+.not-valid {
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: red;
+  background-color: rgba(255, 0, 0, 0.2);
+  padding: 5px 10px;
+  border-radius: 10px;
+  text-transform: uppercase;
 }
 </style>

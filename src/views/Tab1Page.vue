@@ -85,7 +85,6 @@ const startCountdown = async () => {
       let reactionTime: number;
       playSound('go');
       shotTime = performance.now() + 200;
-
       if (movementDetectedBeforeShot && preShotTime) {
         //salida nula
         if (!shotTime) return;
@@ -109,6 +108,13 @@ const startCountdown = async () => {
             let reactionTime: number;
             if (!shotTime) return;
             reactionTime = (currentTime - shotTime) / 1000;
+            //por debajo de 100ms sigue siendo nula
+            if (reactionTime < 0.1){
+              nula.value = true
+              setTimeout(()=>{
+                playSound('go');
+              },800);
+            }
             saveReactionTime(reactionTime);
             stopAcceleration();
             return;
