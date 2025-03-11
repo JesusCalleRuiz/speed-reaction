@@ -8,7 +8,7 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div v-if="loading" class="loading">Cargando...</div>
-      <ion-list v-else-if="time.length > 0">
+      <ion-list class="container" v-else-if="time.length > 0">
         <ion-item
             v-for="(entry, index) in time"
             :key="entry.id"
@@ -131,6 +131,8 @@ onUnmounted(() => {
 .gold {
   --background: gold !important;
   color: black;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
 .silver {
@@ -141,5 +143,8 @@ onUnmounted(() => {
 .bronze {
   --background: #cd7f32 !important;
   color: black;
+}
+.container{
+  border-radius: 10px;
 }
 </style>

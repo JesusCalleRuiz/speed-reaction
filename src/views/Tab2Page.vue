@@ -8,7 +8,7 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div v-if="loading" class="loading">Cargando...</div>
-      <ion-list v-else-if="times.length > 0">
+      <ion-list class="container" v-else-if="times.length > 0">
         <ion-item v-for="time in times" :key="time.id">
           <ion-label class="time-label">
             <div class="time-value">{{ time.time }}s</div>
@@ -113,4 +113,8 @@ onUnmounted(() => {
   border-radius: 10px;
   text-transform: uppercase;
 }
+.container{
+  border-radius: 10px;
+}
+
 </style>
