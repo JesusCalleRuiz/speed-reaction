@@ -48,6 +48,8 @@ let audioBuffers: { [key: string]: AudioBuffer } = {};
 let setTime: number | null = null;
 
 const startCountdown = async () => {
+  const thresholdPreStart = Number(localStorage.getItem("thresholdPreStart")) || 1.0;
+  const thresholdPostStart = Number(localStorage.getItem("thresholdPostStart")) || 1.0;
   const onyourmarksToSetTime = Number(localStorage.getItem("onyourmarksToSetTime")) || 5.0;
   const setToGoTimeMin = Number(localStorage.getItem("setToGoTimeMin")) || 2.0;
   const setToGoTimeMax = Number(localStorage.getItem("setToGoTimeMax")) || 3.0;
@@ -72,7 +74,7 @@ const startCountdown = async () => {
       const relativeTime = setTime ? (currentTime - setTime) / 1000 : 0;
       data.value.push({ time: relativeTime, acceleration });
 
-      if (!shotTime && acceleration > threshold) {
+      if (!shotTime && acceleration > thresholdPreStart) {
         nula.value = true
         movementDetectedBeforeShot = true;
         preShotTime = currentTime;
@@ -104,7 +106,7 @@ const startCountdown = async () => {
           const relativeTime = setTime ? (currentTime - setTime) / 1000 : 0;
           data.value.push({ time: relativeTime, acceleration });
 
-          if (acceleration > threshold) {
+          if (acceleration > thresholdPostStart) {
             let reactionTime: number;
             if (!shotTime) return;
             reactionTime = (currentTime - shotTime) / 1000;

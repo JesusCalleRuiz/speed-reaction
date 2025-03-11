@@ -14,10 +14,6 @@
             <ion-input type="number"  v-model.number="onyourmarksToSetTime" step="0.1" min="1" max="10" class="square-input" />
           </div>
           <div class="time-setting">
-            <ion-label>Tiempo 1</ion-label>
-            <ion-input type="number"  v-model.number="onyourmarksToSetTime" step="0.1" min="1" max="10" class="square-input" />
-          </div>
-          <div class="time-setting">
             <ion-label>Tiempo 2</ion-label>
             <div class="time-inputs">
               <ion-input type="number" v-model.number="setToGoTimeMin" step="0.1" min="1" max="5" class="square-input" />
@@ -48,7 +44,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonInput, IonButton, IonIcon, IonModal } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonLabel, IonInput, IonButton, IonIcon, IonModal } from '@ionic/vue';
 import MenuComponent from '@/components/MenuComponent.vue';
 
 const onyourmarksToSetTime = ref(5.0);
