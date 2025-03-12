@@ -9,20 +9,37 @@
     <ion-content :fullscreen="false" class="ion-padding">
       <div class="container">
         <div class="config-container">
+          <!-- Tiempo 1 -->
           <div class="time-setting">
             <ion-label>Tiempo 1</ion-label>
-            <ion-input type="number"  v-model.number="onyourmarksToSetTime" step="0.1" min="1" max="10" class="square-input" />
+            <ion-input type="number" v-model.number="onyourmarksToSetTime" step="0.1" min="1" max="30" class="square-input1" />
+            <ion-button @click="showAlert1 = true" fill="clear">
+              <ion-icon :icon="chatboxEllipsesOutline" style="font-size: 32px; color: white;"/>
+            </ion-button>
+            <ion-alert
+                :is-open="showAlert1"
+                header="Tiempo 1"
+                message="Este es el tiempo en segundos que transcurre entre la señal de 'ON YOUR MARKS' y 'SET'. Debe ser un valor fijo entre 1 y 30 segundos."
+                :buttons="['OK']"
+                @didDismiss="showAlert1 = false"
+            ></ion-alert>
           </div>
           <div class="time-setting">
             <ion-label>Tiempo 2</ion-label>
             <div class="time-inputs">
               <ion-input type="number" v-model.number="setToGoTimeMin" step="0.1" min="1" max="5" class="square-input" />
-              <ion-input type="number" v-model.number="setToGoTimeMax" step="0.1" min="1" max="5" class="square-input" />
+              <ion-input type="number" v-model.number="setToGoTimeMax" step="0.1" min="1" max="10" class="square-input" />
             </div>
-            <div class="info-icons">
-              <ion-icon name="information-circle-outline" @click="openInfoPopup('min')"></ion-icon>
-              <ion-icon name="information-circle-outline" @click="openInfoPopup('max')"></ion-icon>
-            </div>
+            <ion-button @click="showAlert2 = true" fill="clear">
+              <ion-icon :icon="chatboxEllipsesOutline" style="font-size: 32px; color: white;"/>
+            </ion-button>
+            <ion-alert
+                :is-open="showAlert2"
+                header="Tiempo 2"
+                message="Este es el tiempo en segundos que transcurre entre la señal de 'SET' y el disparo de salida. Se elige aleatoriamente entre los valores mínimos y máximos que ingreses. Si configuras 2 y 3, el disparo ocurrirá en un tiempo aleatorio entre 2 y 3 segundos."
+                :buttons="['OK']"
+                @didDismiss="showAlert2 = false"
+            ></ion-alert>
           </div>
         </div>
         <div class="button-container">
@@ -30,28 +47,21 @@
           <ion-button @click="resetSettings">RESET</ion-button>
         </div>
       </div>
-      <ion-modal :is-open="isInfoPopupOpen" @didDismiss="closeInfoPopup">
-        <ion-content>
-          <div class="popup-content">
-            <p>{{ infoMessage }}</p>
-            <ion-button @click="closeInfoPopup">Cerrar</ion-button>
-          </div>
-        </ion-content>
-      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonLabel, IonInput, IonButton, IonIcon, IonModal } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonLabel, IonInput, IonButton, IonIcon, IonPopover, IonAlert } from '@ionic/vue';
 import MenuComponent from '@/components/MenuComponent.vue';
+import { chatboxEllipsesOutline } from "ionicons/icons";
 
 const onyourmarksToSetTime = ref(5.0);
 const setToGoTimeMin = ref(2.0);
 const setToGoTimeMax = ref(3.0);
-const isInfoPopupOpen = ref(false);
-const infoMessage = ref('');
+const showAlert1 = ref(false);
+const showAlert2 = ref(false);
 
 onMounted(() => {
   onyourmarksToSetTime.value = Number(localStorage.getItem("onyourmarksToSetTime")) || 5.0;
@@ -73,29 +83,23 @@ const resetSettings = () => {
   setToGoTimeMin.value = 2.0;
   setToGoTimeMax.value = 3.0;
 };
-
-const openInfoPopup = (type: string) => {
-  infoMessage.value = type === 'min' ? 'Información sobre el tiempo mínimo' : 'Información sobre el tiempo máximo';
-  isInfoPopupOpen.value = true;
-};
-
-const closeInfoPopup = () => {
-  isInfoPopupOpen.value = false;
-};
 </script>
 
 <style scoped>
 .config-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
   gap: 20px;
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
 }
 
 .time-setting {
   display: flex;
   align-items: center;
-  gap: 15px;
+  justify-content: center;
+  gap: 30px;
+  width: 100%;
 }
 
 .time-inputs {
@@ -103,18 +107,21 @@ const closeInfoPopup = () => {
   gap: 10px;
 }
 
-
 .square-input {
-  width: 60px;
+  width: 50px;
   height: 40px;
   text-align: center;
   background-color: black;
   border-radius: 10px;
+  color: white;
 }
-
-.info-icons {
-  display: flex;
-  gap: 10px;
+.square-input1 {
+  width: 110px;
+  height: 40px;
+  text-align: center;
+  background-color: black;
+  border-radius: 10px;
+  color: white;
 }
 
 .button-container {
@@ -124,14 +131,10 @@ const closeInfoPopup = () => {
   margin-top: 40px;
 }
 
-.popup-content {
-  text-align: center;
-  padding: 20px;
-}
-
 .container {
-  background-color: #232323;
+  background-color: #1e1e1e;
   padding: 20px;
   border-radius: 10px;
+  text-align: center;
 }
 </style>
