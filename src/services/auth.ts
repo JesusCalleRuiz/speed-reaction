@@ -1,4 +1,5 @@
 import api from "./api";
+import axios from "axios";
 
 interface AuthResponse {
     token: string;
@@ -29,9 +30,10 @@ export async function login(email: string, password: string): Promise<AuthRespon
 
 export async function logout(): Promise<void> {
     try {
-        await api.post("/logout");
+        axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
+        await axios.post("https://speedreaction.dev-alicenter.es/api/logout");
     } catch (error) {
-        console.error("Error al cerrar sesión", error);
+        console.error("Error al cerrar sesión:",error);
     }
     localStorage.removeItem("token");
 }

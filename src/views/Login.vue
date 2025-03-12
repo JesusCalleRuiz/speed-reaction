@@ -1,14 +1,14 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true" class="ion-padding">
-      <ion-card>
+      <ion-card class="container">
         <ion-card-header>
           <ion-card-title>Iniciar Sesión</ion-card-title>
         </ion-card-header>
-        <ion-card-content>
-          <ion-input v-model="email" type="email" label="Correo"></ion-input>
-          <ion-input v-model="password" type="password" label="Contraseña"></ion-input>
-          <ion-button expand="full" @click="handleLogin">Entrar</ion-button>
+        <ion-card-content class="content">
+          <ion-input class="input" v-model="email" type="email" label="Correo" label-placement="floating"></ion-input>
+          <ion-input class="input" v-model="password" type="password" label="Contraseña" label-placement="floating"></ion-input>
+          <ion-button class="boton1"  @click="handleLogin">Entrar</ion-button>
         </ion-card-content>
       </ion-card>
       <ion-text>
@@ -37,3 +37,20 @@ const handleLogin = async () => {
   }
 };
 </script>
+<style scoped>
+.container{
+  border-radius: 10px;
+  padding: 20px;
+}
+.input{
+  background-color: black;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  ;
+}
+.boton1{
+
+  width:100%;
+}
+
+</style>

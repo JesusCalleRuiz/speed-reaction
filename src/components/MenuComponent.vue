@@ -9,7 +9,7 @@
           <ion-item :button="true" :detail="false" @click="goToTimes">Tiempos</ion-item>
           <ion-item :button="true" :detail="false" @click="goToSounds">Sonidos</ion-item>
           <ion-item :button="true" :detail="false" @click="goToSensibility">Sensibilidad</ion-item>
-          <ion-item :button="true" :detail="false" @click="logout">Cerrar Sesión</ion-item>
+          <ion-item :button="true" :detail="false" @click="HandleLogout">Cerrar Sesión</ion-item>
         </ion-list>
       </ion-content>
     </ion-popover>
@@ -19,9 +19,9 @@
 
 import { ref } from "vue";
 import { IonContent, IonButton, IonIcon, IonItem, IonList, IonPopover, IonButtons } from "@ionic/vue";
-import axios from "axios";
 import { useRouter } from "vue-router";
 import { ellipsisVertical } from "ionicons/icons";
+import {logout} from "@/services/auth";
 
 const router = useRouter();
 const isOpen = ref(false);
@@ -43,16 +43,13 @@ const goToSensibility = () => {
   isOpen.value = false;
   router.push("/sensivility");
 };
-const logout = async () => {
+const HandleLogout = async () => {
   isOpen.value = false;
   try {
-    axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
-    await axios.post("http://localhost:8000/api/logout");
-    localStorage.removeItem("token");
+    await logout();
     await router.push("/login");
   } catch (error) {
     console.error("Error al cerrar sesión:", error);
-    alert("Error al cerrar sesión. Inténtalo de nuevo.");
   }
 };
 </script>
