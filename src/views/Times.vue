@@ -2,8 +2,7 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Configuración de Tiempos</ion-title>
-        <MenuComponent />
+        <ion-title>Tiempos</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="false" class="ion-padding">
@@ -43,8 +42,8 @@
           </div>
         </div>
         <div class="button-container">
-          <ion-button @click="saveSettings">GUARDAR</ion-button>
-          <ion-button @click="resetSettings">RESET</ion-button>
+          <ion-button class ="button1" @click="saveSettings">Guardar</ion-button>
+          <ion-button class ="button2" @click="resetSettings">Reset</ion-button>
         </div>
       </div>
     </ion-content>
@@ -53,7 +52,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonLabel, IonInput, IonButton, IonIcon, IonPopover, IonAlert } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonLabel, IonInput, IonButton, IonIcon, IonAlert } from '@ionic/vue';
 import MenuComponent from '@/components/MenuComponent.vue';
 import { chatboxEllipsesOutline } from "ionicons/icons";
 
@@ -100,6 +99,7 @@ const resetSettings = () => {
   justify-content: center;
   gap: 30px;
   width: 100%;
+  font-weight:bold;
 }
 
 .time-inputs {
@@ -130,6 +130,29 @@ const resetSettings = () => {
   gap: 20px;
   margin-top: 40px;
 }
+.button1 {
+  --border-radius: 20px;
+  width: 80%;
+  text-transform: none;
+  font-weight:700;
+  font-size: 16px;
+  --color: black;
+  height: 45px;
+  max-width: 200px;
+}
+.button2 {
+  --border-radius: 20px;
+  width: 80%;
+  text-transform: none;
+  font-weight:600;
+  font-size: 16px;
+  --background: black;
+  --border-width: 1px;
+  --border-color: gray;
+  --border-style: solid;
+  height: 45px;
+  max-width: 200px;
+}
 
 .container {
   background-color: #1e1e1e;
@@ -137,4 +160,8 @@ const resetSettings = () => {
   border-radius: 10px;
   text-align: center;
 }
+.title{
+  font-weight:800;
+}
+
 </style>

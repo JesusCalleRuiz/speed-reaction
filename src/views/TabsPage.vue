@@ -67,4 +67,7 @@ onUnmounted(() => {
   transition: opacity 0.7s ease-out, transform 0.7s ease-out;
   pointer-events: none;
 }
+ion-tab-button.tab-selected {
+  --color-selected: white;
+}
 </style>

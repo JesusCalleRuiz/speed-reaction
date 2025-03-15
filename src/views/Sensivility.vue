@@ -3,7 +3,6 @@
     <ion-header>
       <ion-toolbar>
         <ion-title>Sensibilidad</ion-title>
-        <MenuComponent />
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="false" class="ion-padding">
@@ -39,8 +38,8 @@
           </div>
         </div>
         <div class="button-container">
-          <ion-button @click="saveSettings">GUARDAR</ion-button>
-          <ion-button @click="resetSettings">RESET</ion-button>
+          <ion-button class="button1" @click="saveSettings">Guardar</ion-button>
+          <ion-button class="button2" @click="resetSettings">Reset</ion-button>
         </div>
       </div>
     </ion-content>
@@ -61,7 +60,6 @@ import {
   IonIcon,
   IonAlert
 } from '@ionic/vue';
-import MenuComponent from '@/components/MenuComponent.vue';
 import {chatboxEllipsesOutline} from "ionicons/icons";
 
 const thresholdPreStart = ref(1.0)
@@ -104,21 +102,8 @@ const resetSettings = () => {
   width: 100%;
 }
 
-.time-inputs {
-  display: flex;
-  gap: 10px;
-}
-
 .square-input {
   width: 50px;
-  height: 40px;
-  text-align: center;
-  background-color: black;
-  border-radius: 10px;
-  color: white;
-}
-.square-input1 {
-  width: 110px;
   height: 40px;
   text-align: center;
   background-color: black;
@@ -138,5 +123,28 @@ const resetSettings = () => {
   padding: 20px;
   border-radius: 10px;
   text-align: center;
+}
+.button1 {
+  --border-radius: 20px;
+  width: 80%;
+  text-transform: none;
+  font-weight:700;
+  font-size: 16px;
+  --color: black;
+  height: 45px;
+  max-width: 200px;
+}
+.button2 {
+  --border-radius: 20px;
+  width: 80%;
+  text-transform: none;
+  font-weight:600;
+  font-size: 16px;
+  --background: black;
+  --border-width: 1px;
+  --border-color: gray;
+  --border-style: solid;
+  height: 45px;
+  max-width: 200px;
 }
 </style>

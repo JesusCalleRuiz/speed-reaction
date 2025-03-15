@@ -13,6 +13,7 @@
   </template>
   
   <script setup lang="ts">
-  import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel } from '@ionic/vue';
+  import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, } from '@ionic/vue';
+  import MenuComponent from "@/components/MenuComponent.vue";
 
   </script>

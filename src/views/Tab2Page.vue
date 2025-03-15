@@ -84,8 +84,11 @@ onUnmounted(() => {
 }
 
 .time-value {
-  font-size: 1.5rem; /* Tamaño grande */
-  font-weight: bold; /* Negrita */
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+.title{
+  font-weight:bold;
 }
 
 .time-date {

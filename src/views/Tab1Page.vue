@@ -16,7 +16,7 @@
           <h1 v-if="nula" class="salida-nula">{{ message2 }}</h1>
         </div>
         <LineChart :data="data" />
-        <ion-button class="boton" @click="startCountdown" v-if="!running">Iniciar</ion-button>
+        <ion-button class="button1" @click="startCountdown" v-if="!running">Iniciar</ion-button>
       </div>
     </ion-content>
   </ion-page> 
@@ -40,7 +40,6 @@ const nula = ref(false);
 let shotTime: number | null = null;
 let preShotTime: number | null = null;
 const data = ref<{ time: number, acceleration: number }[]>([]);
-const threshold = 1.0;
 let movementDetectedBeforeShot = false;
 let accelHandler: PluginListenerHandle | null = null;
 let audioContext: AudioContext;
@@ -207,19 +206,14 @@ h1 {
   font-weight: normal;
 }
 
-.boton {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100vw;
-  height: 60px;
-  border-radius: 0;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-  font-size: 18px;
-  z-index: 1000;
+.button1 {
+  --border-radius: 20px;
+  width: 95%;
+  text-transform: none;
+  font-weight:800;
+  font-size: 16px;
+  --color: black;
+  height: 45px;
 }
 
 .oculto {

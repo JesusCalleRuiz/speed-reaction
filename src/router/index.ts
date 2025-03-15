@@ -6,7 +6,11 @@ import { isAuthenticated } from '@/services/auth';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: isAuthenticated() ? '/tabs/tab1' : '/login'
+    redirect: isAuthenticated() ? '/tabs/tab1' : '/start'
+  },
+  {
+    path: '/start',
+    component: () => import('@/views/StartPage.vue')
   },
   {
     path: '/login',

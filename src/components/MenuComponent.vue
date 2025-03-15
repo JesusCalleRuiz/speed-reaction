@@ -7,7 +7,7 @@
       <ion-content>
         <ion-list>
           <ion-item :button="true" :detail="false" @click="goToTimes">Tiempos</ion-item>
-          <ion-item :button="true" :detail="false" @click="goToSounds">Sonidos</ion-item>
+          <!--ion-item :button="true" :detail="false" @click="goToSounds">Sonidos</ion-item-->
           <ion-item :button="true" :detail="false" @click="goToSensibility">Sensibilidad</ion-item>
           <ion-item :button="true" :detail="false" @click="HandleLogout">Cerrar Sesión</ion-item>
         </ion-list>
@@ -31,10 +31,12 @@ const openPopover = (event: Event) => {
   popoverEvent.value = event;
   isOpen.value = true;
 };
+/*
 const goToSounds = () => {
   isOpen.value = false;
   router.push("/sounds");
 };
+ */
 const goToTimes = () => {
   isOpen.value = false;
   router.push("/times");
@@ -47,7 +49,7 @@ const HandleLogout = async () => {
   isOpen.value = false;
   try {
     await logout();
-    await router.push("/login");
+    await router.push("/start");
   } catch (error) {
     console.error("Error al cerrar sesión:", error);
   }
