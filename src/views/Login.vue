@@ -1,6 +1,7 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true" class="ion-padding">
+      <div class="cont">
       <ion-card class="container">
         <ion-card-content>
           <ion-card-header>
@@ -24,6 +25,7 @@
           </div>
         </ion-card-content>
       </ion-card>
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -55,6 +57,12 @@ const handleLogin = async () => {
 };
 </script>
 <style scoped>
+.cont {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+}
 .container{
   border-radius: 10px;
   padding: 20px;
